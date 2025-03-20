@@ -10,6 +10,7 @@ services:
     environment:
       - NODE_ENV=production
       - LOG_FILE_PATH=/var/log/app/application.log  # Just the base filename
+      - TZ=Asia/Phnom_Penh
     volumes:
       - ./logs:/var/log/app  # Mount logs directory
     networks:

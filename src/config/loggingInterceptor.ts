@@ -1,4 +1,5 @@
 import { CallHandler, ExecutionContext, Injectable, NestInterceptor, Logger, HttpException } from '@nestjs/common';
+import * as moment from 'moment-timezone';
 import { Observable, throwError } from 'rxjs';
 import { tap, map, catchError } from 'rxjs/operators';
 import { v4 as uuidv4 } from 'uuid';
@@ -10,7 +11,7 @@ const dailyRotateTransport = new winston.transports.DailyRotateFile({
     datePattern: 'YYYY-MM-DD',  // Format for the date (year-month-day)
     level: 'info',
     format: winston.format.combine(
-      winston.format.timestamp(),
+      winston.format.timestamp({format: () => moment().tz('Asia/Phnom_Penh').format('YYYY-MM-DD HH:mm:ss')}),
       winston.format.json()
     ),
     maxFiles: '14d',  // Keep logs for the last 14 days (you can adjust this value as needed)
@@ -22,7 +23,7 @@ const dailyRotateTransport = new winston.transports.DailyRotateFile({
 const consoleTransport = new winston.transports.Console({
   level: 'info',
   format: winston.format.combine(
-    winston.format.timestamp(),   // Adds timestamp to logs
+    winston.format.timestamp({format: () => moment().tz('Asia/Phnom_Penh').format('YYYY-MM-DD HH:mm:ss')}),   // Adds timestamp to logs
     winston.format.json()         // Logs in JSON format
   ),
 });
