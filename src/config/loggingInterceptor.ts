@@ -6,7 +6,7 @@ import * as winston from 'winston';
 import 'winston-daily-rotate-file';  
 
 const dailyRotateTransport = new winston.transports.DailyRotateFile({
-    filename: 'logs/application-%DATE%.log',  // File name pattern (e.g., application-2025-03-19.log)
+    filename: '/var/log/app/application-%DATE%.log',  // File name pattern (e.g., application-2025-03-19.log)
     datePattern: 'YYYY-MM-DD',  // Format for the date (year-month-day)
     level: 'info',
     format: winston.format.combine(
@@ -16,14 +16,6 @@ const dailyRotateTransport = new winston.transports.DailyRotateFile({
     maxFiles: '14d',  // Keep logs for the last 14 days (you can adjust this value as needed)
   });
 
-const fileTransport = new winston.transports.File({
-    filename: '/var/log/app/application.log',
-    level: 'info',
-    format: winston.format.combine(
-      winston.format.timestamp(),
-      winston.format.json()
-    ),
-  });
 
 
 // ✅ Winston Logger Configuration for Console (stdout/stderr)
@@ -41,7 +33,7 @@ const logger = winston.createLogger({
     winston.format.timestamp(),
     winston.format.json()
   ),
-  transports: [consoleTransport, fileTransport, dailyRotateTransport],  // Log to stdout
+  transports: [consoleTransport, dailyRotateTransport],  // Log to stdout
 });
 
 @Injectable()

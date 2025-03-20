@@ -9,11 +9,12 @@ services:
       - "8000:8000"
     environment:
       - NODE_ENV=production
-      - LOG_FILE_PATH=/var/log/app/application.log
+      - LOG_FILE_PATH=/var/log/app/application.log  # Just the base filename
     volumes:
-      - ./logs:/var/log/app
+      - ./logs:/var/log/app  # Mount logs directory
     networks:
       - app-network
+    #user: root  # Ensure write permission
 
 networks:
   app-network:
