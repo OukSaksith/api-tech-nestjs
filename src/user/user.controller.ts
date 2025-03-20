@@ -10,7 +10,7 @@ import {
   Query,
 } from '@nestjs/common';
 import { UserService } from './user.service';
-import { JwtGuard } from 'src/auth/guards/jwt.guard.ts.guard';
+import { JwtGuard } from 'src/config/guards/jwt.guard.ts.guard';
 
 @Controller('user')
 export class UserController {
@@ -28,7 +28,7 @@ export class UserController {
     @Query('page') page: number = 1,
     @Query('size') size: number = 10,
   ) {
-    console.log(page,size);
+    // console.log(page,size);
     return this.userService.findAll(Number(page), Number(size));
   }
 }

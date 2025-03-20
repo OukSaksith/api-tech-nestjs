@@ -1,0 +1,20 @@
+version: '3.8'
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    environment:
+      - NODE_ENV=production
+      - LOG_FILE_PATH=/var/log/app/application.log
+    volumes:
+      - ./logs:/var/log/app
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge

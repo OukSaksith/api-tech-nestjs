@@ -1,4 +1,4 @@
-import { ConflictException, Injectable } from '@nestjs/common';
+import { ConflictException, Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from './entities/user.entity';
@@ -8,6 +8,8 @@ import { hash } from 'bcrypt';
 @Injectable()
 export class UserService {
   constructor(@InjectRepository(User) private userRepository: Repository<User>) {}
+
+  private readonly logger = new Logger(UserService.name);
 
   async create(dto: CreateUserDto) {
     const user = await this.userRepository.findOne({
@@ -41,6 +43,8 @@ export class UserService {
       take: size, // Limit results per page
       order: { id: 'DESC' }, // Sort by ID in descending order (optional)
     });
+
+    this.logger.log("refresh table");
 
     return {
       data: users,

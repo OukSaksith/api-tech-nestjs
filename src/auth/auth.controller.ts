@@ -3,7 +3,7 @@ import { AuthService } from './auth.service';
 import { CreateUserDto } from 'src/user/dto/user.dto';
 import { UserService } from 'src/user/user.service';
 import { LoginDto } from './dto/auth.dto';
-import { RefreshJwtGuard } from './guards/refresh.guard.ts.guard';
+import { RefreshJwtGuard } from '../config/guards/refresh.guard.ts.guard';
 
 @Controller('auth')
 export class AuthController {
@@ -14,7 +14,7 @@ export class AuthController {
 
   @Post('register')
   async registerUser(@Body() dto: CreateUserDto) {
-    console.log(dto);
+    // console.log(dto);
     return await this.userService.create(dto);
   }
 
@@ -26,7 +26,7 @@ export class AuthController {
   @UseGuards(RefreshJwtGuard)
   @Post('refresh')
   async refreshToken(@Request() req) {
-    console.log('refreshed');
+    // console.log('refreshed');
 
     return await this.authService.refreshToken(req.user);
   }
