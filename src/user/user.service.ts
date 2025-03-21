@@ -4,12 +4,12 @@ import { Repository } from 'typeorm';
 import { User } from './entities/user.entity';
 import { CreateUserDto } from './dto/user.dto';
 import { hash } from 'bcrypt';
+import { LoggingInterceptor } from 'src/config/loggingInterceptor';
 
 @Injectable()
 export class UserService {
   constructor(@InjectRepository(User) private userRepository: Repository<User>) {}
-
-  private readonly logger = new Logger(UserService.name);
+  private readonly logger = new LoggingInterceptor();
 
   async create(dto: CreateUserDto) {
     const user = await this.userRepository.findOne({
@@ -43,9 +43,7 @@ export class UserService {
       take: size, // Limit results per page
       order: { id: 'DESC' }, // Sort by ID in descending order (optional)
     });
-
-    this.logger.log("refresh table");
-
+    this.logger.log("Refresh user table", UserService.name);
     return {
       data: users,
       total,

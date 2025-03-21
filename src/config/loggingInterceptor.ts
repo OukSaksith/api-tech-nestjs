@@ -1,41 +1,57 @@
-import { CallHandler, ExecutionContext, Injectable, NestInterceptor, Logger, HttpException } from '@nestjs/common';
+import {
+  CallHandler,
+  ExecutionContext,
+  Injectable,
+  NestInterceptor,
+  Logger,
+  HttpException,
+  LoggerService,
+} from '@nestjs/common';
 import * as moment from 'moment-timezone';
 import { Observable, throwError } from 'rxjs';
 import { tap, map, catchError } from 'rxjs/operators';
 import { v4 as uuidv4 } from 'uuid';
 import * as winston from 'winston';
-import 'winston-daily-rotate-file';  
+import 'winston-daily-rotate-file';
 
-const dailyRotateTransport = new winston.transports.DailyRotateFile({
-    filename: '/var/log/app/application-%DATE%.log',  // File name pattern (e.g., application-2025-03-19.log)
-    datePattern: 'YYYY-MM-DD',  // Format for the date (year-month-day)
-    level: 'info',
-    format: winston.format.combine(
-      winston.format.timestamp({format: () => moment().tz('Asia/Phnom_Penh').format('YYYY-MM-DD HH:mm:ss')}),
-      winston.format.json()
-    ),
-    maxFiles: '14d',  // Keep logs for the last 14 days (you can adjust this value as needed)
-  });
+const timestampFormat = () =>
+  moment().tz('Asia/Phnom_Penh').format('YYYY-MM-DD HH:mm:ss');
 
+// ✅ Readable text format for Console & File
+const readableFormat = winston.format.printf(
+  ({ level, message, timestamp, ...meta }) => {
+    return `${timestamp} [${level.toUpperCase()}] ${message} ${Object.keys(meta).length ? JSON.stringify(meta) : ''}`;
+  },
+);
 
+// ✅ Winston Daily Rotate File (Readable) with the same format as Console
+const dailyRotateReadable = new winston.transports.DailyRotateFile({
+  filename: '/var/log/app/application-%DATE%.log',
+  datePattern: 'YYYY-MM-DD',
+  level: 'info',
+  format: winston.format.combine(
+    winston.format.timestamp({ format: timestampFormat }),
+    readableFormat // Use the same readable format for logs
+  ),
+  maxFiles: '14d',
+});
 
-// ✅ Winston Logger Configuration for Console (stdout/stderr)
+// ✅ Console Transport (Readable logs)
 const consoleTransport = new winston.transports.Console({
   level: 'info',
   format: winston.format.combine(
-    winston.format.timestamp({format: () => moment().tz('Asia/Phnom_Penh').format('YYYY-MM-DD HH:mm:ss')}),   // Adds timestamp to logs
-    winston.format.json()         // Logs in JSON format
+    winston.format.timestamp({ format: timestampFormat }),
+    winston.format.colorize(),
+    readableFormat // Use the same readable format for console logs
   ),
 });
 
-const logger = winston.createLogger({
+// Create the logger with readable format for all transports
+export const logger = winston.createLogger({
   level: 'info',
-  format: winston.format.combine(
-    winston.format.timestamp(),
-    winston.format.json()
-  ),
-  transports: [consoleTransport, dailyRotateTransport],  // Log to stdout
+  transports: [consoleTransport, dailyRotateReadable],
 });
+
 
 @Injectable()
 export class LoggingInterceptor implements NestInterceptor {
@@ -44,7 +60,7 @@ export class LoggingInterceptor implements NestInterceptor {
   intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
     const request = context.switchToHttp().getRequest();
     const { method, url, body, params, query, headers, ip, hostname } = request;
-    const requestId = uuidv4();  // Generate a unique ID for tracking
+    const requestId = uuidv4(); // Generate a unique ID for tracking
     const now = Date.now();
 
     const logData = {
@@ -62,6 +78,7 @@ export class LoggingInterceptor implements NestInterceptor {
 
     // Log request details to stdout (console)
     this.logger.log(`🆔 [${requestId}] ➡️ Incoming Request: ${method} ${url}`);
+    logger.info(`[${LoggingInterceptor.name}] - 🆔 [${requestId}] ➡️ Incoming Request: ${method} ${url}`);
     logger.info({ message: 'Incoming Request', ...logData });
 
     return next.handle().pipe(
@@ -77,7 +94,10 @@ export class LoggingInterceptor implements NestInterceptor {
         };
 
         // Log response details to stdout (console)
-        this.logger.log(`🆔 [${requestId}] ⬅️ Response: ${method} ${url} - ${executionTime}ms`);
+        this.logger.log(
+          `🆔 [${requestId}] ⬅️ Response: ${method} ${url} - ${executionTime}ms`,
+        );
+        logger.info(`[${LoggingInterceptor.name}] - 🆔 [${requestId}] ⬅️ Response: ${method} ${url} - ${executionTime}ms`);
         logger.info({ message: 'Response', ...responseLogData });
 
         return responseBody;
@@ -96,11 +116,36 @@ export class LoggingInterceptor implements NestInterceptor {
         };
 
         // Log exception details to stdout (console)
-        this.logger.error(`🆔 [${requestId}] ⬅️ Error Response: ${method} ${url} - ${executionTime}ms`);
+        this.logger.error(
+          `🆔 [${requestId}] ⬅️ Error Response: ${method} ${url} - ${executionTime}ms`,
+        );
+        logger.error(`[${LoggingInterceptor.name}] - 🆔 [${requestId}] ⬅️ Error Response: ${method} ${url} - ${executionTime}ms`);
         logger.error({ message: 'Exception', ...errorLogData });
 
         return throwError(err); // Rethrow the error after logging
-      })
+      }),
     );
   }
+
+  
+  log(message: string, clazz: string) {
+    const requestId = uuidv4(); 
+    logger.info(`[${clazz ==null ? LoggingInterceptor.name : clazz}] - 🆔 [${requestId}] ⬅️ Log Response: ${message}`);
+  }
+
+  error(message: string, trace: string, clazz: string) {
+    const requestId = uuidv4(); 
+    logger.error(`[${clazz ==null ? LoggingInterceptor.name : clazz}] - 🆔 [${requestId}] ⬅️ Error Response: ${message} - Error Trace: ${trace}`);
+  }
+
+  warn(message: string, clazz: string) {
+    const requestId = uuidv4(); 
+    logger.warn(`[${clazz ==null ? LoggingInterceptor.name : clazz}] - 🆔 [${requestId}] ⬅️ Warn Response: ${message}`);
+  }
+
+  debug(message: string, clazz: string) {
+    const requestId = uuidv4(); 
+    logger.debug(`[${clazz ==null ? LoggingInterceptor.name : clazz}] - 🆔 [${requestId}] ⬅️ Debug Response: ${message}`);
+  }
+
 }
