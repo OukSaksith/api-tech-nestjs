@@ -43,7 +43,7 @@ export class UserService {
       take: size, // Limit results per page
       order: { id: 'DESC' }, // Sort by ID in descending order (optional)
     });
-    this.logger.log("Refresh user table", UserService.name);
+    this.logger.log("Refresh user table", UserService.name, users);
     return {
       data: users,
       total,

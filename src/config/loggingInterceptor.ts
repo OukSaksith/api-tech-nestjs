@@ -127,25 +127,30 @@ export class LoggingInterceptor implements NestInterceptor {
     );
   }
 
-  
-  log(message: string, clazz: string) {
-    const requestId = uuidv4(); 
-    logger.info(`[${clazz ==null ? LoggingInterceptor.name : clazz}] - 🆔 [${requestId}] ⬅️ Log Response: ${message}`);
+  //USE FOR INDIVIDUAL
+  log(message: string, clazz: string, data : object) {
+    const requestId = uuidv4();
+    const formattedData = JSON.stringify(data, null, 2) || [];
+    this.logger.log(`🆔 [${requestId}] ➡️ Log Response: ${message}  ➡️  data : ${data}`);
+    logger.info(`[${clazz === null ? LoggingInterceptor.name : clazz}] - 🆔 [${requestId}] ⬅️ Log Response: ${message}  ➡️  data : ${formattedData}`);
   }
 
   error(message: string, trace: string, clazz: string) {
     const requestId = uuidv4(); 
-    logger.error(`[${clazz ==null ? LoggingInterceptor.name : clazz}] - 🆔 [${requestId}] ⬅️ Error Response: ${message} - Error Trace: ${trace}`);
+    this.logger.error(`🆔 [${requestId}] ➡️ Error Response: ${message} ⬅️ Error Trace: ${trace}`);
+    logger.error(`[${clazz === null ? LoggingInterceptor.name : clazz}] - 🆔 [${requestId}] ⬅️ Error Response: ${message} ⬅️ Error Trace: ${trace}`);
   }
 
   warn(message: string, clazz: string) {
     const requestId = uuidv4(); 
-    logger.warn(`[${clazz ==null ? LoggingInterceptor.name : clazz}] - 🆔 [${requestId}] ⬅️ Warn Response: ${message}`);
+    this.logger.warn(`🆔 [${requestId}] ➡️ Warn Response: ${message}`);
+    logger.warn(`[${clazz === null ? LoggingInterceptor.name : clazz}] - 🆔 [${requestId}] ⬅️ Warn Response: ${message}`);
   }
 
   debug(message: string, clazz: string) {
     const requestId = uuidv4(); 
-    logger.debug(`[${clazz ==null ? LoggingInterceptor.name : clazz}] - 🆔 [${requestId}] ⬅️ Debug Response: ${message}`);
+    this.logger.warn(`🆔 [${requestId}] ➡️ Debug Response: ${message}`);
+    logger.debug(`[${clazz === null ? LoggingInterceptor.name : clazz}] - 🆔 [${requestId}] ⬅️ Debug Response: ${message}`);
   }
 
 }
