@@ -5,6 +5,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+    container_name: api_container
     ports:
       - "8000:8000"
     environment:
