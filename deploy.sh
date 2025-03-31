@@ -13,7 +13,7 @@ echo "🐳 Building and starting Docker containers..."
 docker-compose up -d --build
 
 echo "⏳ Waiting for PostgreSQL to be ready..."
-while ! docker exec postgres_container pg_isready -U postgres >/dev/null 2>&1; do
+while ! docker exec db_container pg_isready -U postgres >/dev/null 2>&1; do
   echo "⏳ Waiting for database..."
   sleep 2
 done
