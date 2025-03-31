@@ -10,6 +10,7 @@ import { LoggingInterceptor } from 'src/config/loggingInterceptor';
 export class UserService {
   constructor(@InjectRepository(User) private userRepository: Repository<User>) {}
   private readonly logger = new LoggingInterceptor();
+  // private readonly logger1 = new Logger(UserService.name);
 
   async create(dto: CreateUserDto) {
     const user = await this.userRepository.findOne({
@@ -44,6 +45,9 @@ export class UserService {
       order: { id: 'DESC' }, // Sort by ID in descending order (optional)
     });
     this.logger.log("Refresh user table", UserService.name, users);
+
+    // this.logger1.log("Refresh userx2 table" , JSON.stringify(users, null, 2) || []);
+  
     return {
       data: users,
       total,

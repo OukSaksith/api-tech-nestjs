@@ -131,7 +131,7 @@ export class LoggingInterceptor implements NestInterceptor {
   log(message: string, clazz: string, data : object) {
     const requestId = uuidv4();
     const formattedData = JSON.stringify(data, null, 2) || [];
-    this.logger.log(`🆔 [${requestId}] ➡️ Log Response: ${message}  ➡️  data : ${data}`);
+    this.logger.log(`🆔 [${requestId}] ➡️ Log Response: ${message}  ➡️  data : ${formattedData}`);
     logger.info(`[${clazz === null ? LoggingInterceptor.name : clazz}] - 🆔 [${requestId}] ⬅️ Log Response: ${message}  ➡️  data : ${formattedData}`);
   }
 

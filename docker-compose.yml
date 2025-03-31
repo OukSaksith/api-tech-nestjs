@@ -9,14 +9,38 @@ services:
       - "8000:8000"
     environment:
       - NODE_ENV=production
-      - LOG_FILE_PATH=/var/log/app/application.log  # Just the base filename
+      - LOG_FILE_PATH=/var/log/app/application.log
       - TZ=Asia/Phnom_Penh
+      - DATABASE_HOST=db
+      - DATABASE_PORT=5432
+      - DATABASE_USER=postgres
+      - DATABASE_PASSWORD=xPasswrd$$99
+      - DATABASE_NAME=api_db
     volumes:
-      - ./logs:/var/log/app  # Mount logs directory
+      - ./logs:/var/log/app
+    depends_on:
+      - db
     networks:
       - app-network
-    #user: root  # Ensure write permission
+
+  db:
+    image: postgres:15
+    container_name: postgres_container
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: xPasswrd$$99
+      POSTGRES_DB: api_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - app-network
 
 networks:
   app-network:
     driver: bridge
+
+volumes:
+  postgres_data:
