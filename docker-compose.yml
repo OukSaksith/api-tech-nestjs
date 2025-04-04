@@ -2,6 +2,7 @@ version: '3.8'
 
 services:
   app:
+    image: api-tech-image:latest
     build:
       context: .
       dockerfile: Dockerfile
@@ -42,6 +43,7 @@ services:
 networks:
   app-network:
     driver: bridge
+    # external: true
 
 volumes:
   postgres_data:

@@ -6,8 +6,12 @@ set -e
 echo "🚀 Stopping and removing existing containers (but not volumes)..."
 docker-compose down  # This stops the containers but keeps the volumes
 
-echo "🧹 Removing old Docker images..."
-docker rmi $(docker images -q) -f || true  # Force remove images (if any)
+# Remove the Docker image
+echo "Removing the Docker image..."
+docker rmi api-tech-image:latest  # Remove the image by container name or image ID
+
+# echo "🧹 Removing old Docker images..."
+# docker rmi $(docker images -q) -f || true  # Force remove images (if any)
 
 echo "🐳 Building and starting Docker containers..."
 docker-compose up -d --build
@@ -25,3 +29,6 @@ docker exec -it $(docker ps -qf "name=app") npm run migration:run
 
 echo "🎉 Deployment complete! Your application is running."
 docker ps
+
+# Keep the terminal open
+read -p "Press enter to exit..."
